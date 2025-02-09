@@ -11,7 +11,7 @@ namespace Test
         [SerializeField] private List<MemeOption> memeOptions;
         [SerializeField] private Image memeImage1, memeImage2, memeImage3;
         [SerializeField] private Text memeText1, memeText2, memeText3;
-        [SerializeField] private CharacterReaction characterReaction;
+        //[SerializeField] private CharacterReaction characterReaction;
         [SerializeField] private GameObject memeGamePanel;
         [SerializeField] private DialogManager dialogManager;
 
