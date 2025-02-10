@@ -28,7 +28,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System;
-using TMPro;
+using Test;
 
 namespace Doublsb.Dialog
 {
@@ -37,8 +37,15 @@ namespace Doublsb.Dialog
         //================================================
         //Public Variable
         //================================================
-        [Header("Game Objects")]
-        public GameObject Characters;
+        //[Header("Game Objects")]
+        //public GameObject Printer;
+        //public GameObject Characters;
+
+        //[Header("UI Objects")]
+        //public Text Printer_Text;
+
+        [Header("Panels")]
+        public List<DialoguePanel> DialoguePanels;
 
         [Header("Audio Objects")]
         public AudioSource SEAudio;
@@ -50,7 +57,7 @@ namespace Doublsb.Dialog
         [Header("Selector")]
         public GameObject Selector;
         public GameObject SelectorItem;
-        public TMP_Text SelectorItemText;
+        public Text SelectorItemText;
 
         [HideInInspector]
         public State state;
@@ -61,30 +68,27 @@ namespace Doublsb.Dialog
         //================================================
         //Private Method
         //================================================
-        private Dictionary<string, Character> characterDict = new Dictionary<string, Character>();
+
+        private Dictionary<string, DialoguePanel> _panelsDict = new Dictionary<string, DialoguePanel>();
 
         private DialogData _current_Data;
+        private DialoguePanel _current_Panel;
+        
+        private Character _current_Character;
 
         private float _currentDelay;
         private float _lastDelay;
         private Coroutine _textingRoutine;
         private Coroutine _printingRoutine;
 
-        private void Start()
+        private void Awake()
         {
-            LoadCharacters();        
-        }
-
-        private void LoadCharacters()
-        {
-            characterDict.Clear();
-            foreach (Transform child in Characters.transform)
+            foreach (var dp in DialoguePanels)
             {
-                Character character = child.GetComponentInChildren<Character>();
-                if (character != null)
-                {
-                    characterDict[character.name] = character;
-                }
+                if (!_panelsDict.ContainsKey(dp.CharacterID))
+                    _panelsDict.Add(dp.CharacterID, dp);
+                else
+                    Debug.LogError($"Ya existe un panel con el ID: { dp.CharacterID}");
             }
         }
 
@@ -92,47 +96,81 @@ namespace Doublsb.Dialog
         //Public Method
         //================================================
         #region Show & Hide
-        public void Show(DialogData Data)
+        public void Show(DialogData data)
         {
-            _current_Data = Data;
+            _current_Data = data;
 
-            if (!characterDict.ContainsKey(Data.Character))
+            // buscas el panel correspondiente.
+            if(!_panelsDict.TryGetValue(data.CharacterID, out _current_Panel))
             {
-                Debug.LogError($"Error: No se encontró el personaje '{Data.Character}' en la escena.");
-                return;
+                Debug.LogError($"No se encontro el panel con ID: { data.CharacterID}");
+                _current_Panel = DialoguePanels[0];
             }
 
-            _textingRoutine = StartCoroutine(Activate(Data.Character));
+            _find_character(data.CharacterID, _current_Panel);
+
+            // Activa el panel actual y oculta los demas. 
+            foreach (var panel in _panelsDict.Values)
+            {
+                if (panel == _current_Panel)
+                    panel.ShowPanel();
+                else
+                    panel.HidePanel();
+            }
+
+            // inicializar el texto en el panel actual
+            _current_Panel.PrinterText.text = "";
+
+            //
+            //if(_current_Character != null)
+            //    _emote("Normal");
+
+            _textingRoutine = StartCoroutine(Activate());
         }
 
-        public void Show(List<DialogData> DataList)
+        public void Show(List<DialogData> Data)
         {
-            StartCoroutine(Activate_List(DataList));
+            StartCoroutine(Activate_List(Data));
         }
 
         public void Click_Window()
         {
-            if (state == State.Active)
-                StartCoroutine(_skip());
-            else if (state == State.Wait && _current_Data.SelectList.Count <= 0)
-                Hide();
+            switch (state)
+            {
+                case State.Active:
+                    StartCoroutine(_skip()); break;
+
+                case State.Wait:
+                    if(_current_Data.SelectList.Count <= 0) Hide(); break;
+            }
         }
 
         public void Hide()
         {
-            if(_textingRoutine != null) StopCoroutine(_textingRoutine);
-            if(_printingRoutine != null) StopCoroutine(_printingRoutine);
+            if(_textingRoutine != null)
+                StopCoroutine(_textingRoutine);
 
-            foreach (var character in characterDict.Values)
+            if(_printingRoutine != null)
+                StopCoroutine(_printingRoutine);
+
+            // ocultar todos los paneles.
+            foreach (var panel in _panelsDict.Values)
             {
-                //character.HideDialog();
+                panel.HidePanel();
             }
 
+            //Printer.SetActive(false);
+            //Characters.SetActive(false);
+            
             Selector.SetActive(false);
+
             state = State.Deactivate;
 
-            _current_Data?.Callback?.Invoke();
-            _current_Data.Callback = null;
+            if (_current_Data.Callback != null)
+            {
+                _current_Data.Callback.Invoke();
+                _current_Data.Callback = null;
+            }
         }
         #endregion
 
@@ -148,26 +186,22 @@ namespace Doublsb.Dialog
 
         #region Sound
 
-        public void Play_ChatSE(string characterName)
+        public void Play_ChatSE()
         {
-            if (!characterDict.ContainsKey(characterName)) return;
-            Character character = characterDict[characterName];
-
-            if (character.ChatSE.Length > 0)
+            if (_current_Character != null)
             {
-                SEAudio.clip = character.ChatSE[UnityEngine.Random.Range(0, character.ChatSE.Length)];
+                SEAudio.clip = _current_Character.ChatSE[UnityEngine.Random.Range(0, _current_Character.ChatSE.Length)];
                 SEAudio.Play();
             }
         }
 
-        public void Play_CallSE(string characterName, string SEname)
+        public void Play_CallSE(string SEname)
         {
-            if (!characterDict.ContainsKey(characterName)) return;
-            Character character = characterDict[characterName];
-
-            var FindSE = Array.Find(character.CallSE, (SE) => SE.name == SEname);
-            if (FindSE != null)
+            if (_current_Character != null)
             {
+                var FindSE
+                    = Array.Find(_current_Character.CallSE, (SE) => SE.name == SEname);
+
                 CallAudio.clip = FindSE;
                 CallAudio.Play();
             }
@@ -208,61 +242,170 @@ namespace Doublsb.Dialog
         //Private Method
         //================================================
 
-        private IEnumerator Activate(string characterName)
+        private void _find_character(string name, DialoguePanel panel)
         {
-            _initialize(characterName);
-            //state = State.Active;
-
-            foreach (var item in _current_Data.Commands)
+            if (!string.IsNullOrEmpty(name))
             {
-                if (item.Command == Command.print)
-                {
-                    yield return _printingRoutine = StartCoroutine(_print(item.Context, characterName));
-                }
+                Transform child = panel.CharactersContainer.transform.Find(name);
+                if (child != null)
+                    _current_Character = child.GetComponent<Character>();
+                else
+                    Debug.LogWarning($"No se encontró el personaje {name} en el panel {panel.CharacterID}");
             }
 
-            //state = State.Wait;
+            //if (name != string.Empty)
+            //{
+            //    Transform Child = Characters.transform.Find(name);
+            //    if (Child != null) _current_Character = Child.GetComponent<Character>();
+            //}
         }
 
-        private void _initialize(string characterName)
+        private void _initialize()
         {
             _currentDelay = Delay;
             _lastDelay = 0.1f;
 
-            if (!characterDict.ContainsKey(characterName)) return;
+            _current_Data.PrintText = "";
+            _current_Panel.PrinterText.text = "";
+            
+            //Printer_Text.text = string.Empty;
 
-            //Character character = characterDict[characterName];
-            //character.ShowDialog();
+            //Printer.SetActive(true);
+
+            //Characters.SetActive(_current_Character != null);
+            //foreach (Transform item in Characters.transform) item.gameObject.SetActive(false);
+            //if(_current_Character != null) _current_Character.gameObject.SetActive(true);
         }
 
-        private IEnumerator _print(string text, string characterName)
+        private void _init_selector()
         {
-            if (!characterDict.ContainsKey(characterName)) yield break;
+            _clear_selector();
 
-            Character character = characterDict[characterName];
-            //character.SetDialogText(text);
-
-            if (text.Length > 0)
+            if (_current_Data.SelectList.Count > 0)
             {
-                Play_ChatSE(characterName);
-            }
+                Selector.SetActive(true);
 
-            yield return new WaitForSeconds(_currentDelay);
+                for (int i = 0; i < _current_Data.SelectList.Count; i++)
+                {
+                    _add_selectorItem(i);
+                }
+            }
+                
+            else Selector.SetActive(false);
+        }
+
+        private void _clear_selector()
+        {
+            // se asume que el primer hijo es la plantilla y los demas se generan.
+            for (int i = 1; i < Selector.transform.childCount; i++)
+            {
+                Destroy(Selector.transform.GetChild(i).gameObject);
+            }
+        }
+
+        private void _add_selectorItem(int index)
+        {
+            SelectorItemText.text = _current_Data.SelectList.GetByIndex(index).Value;
+
+            var NewItem = Instantiate(SelectorItem, Selector.transform);
+            NewItem.GetComponent<Button>().onClick.AddListener(() => Select(index));
+            NewItem.SetActive(true);
         }
 
         #region Show Text
-
-
 
         private IEnumerator Activate_List(List<DialogData> DataList)
         {
             state = State.Active;
 
-            foreach (var Data in DataList)
+            foreach (var data in DataList)
             {
-                Show(Data);
-                while (state != State.Deactivate) { yield return null; }
+                Show(data);
+                _init_selector();
+
+                while (state != State.Deactivate) 
+                    yield return null; 
             }
+        }
+
+        private IEnumerator Activate()
+        {
+            _initialize();
+
+            state = State.Active;
+
+            foreach (var item in _current_Data.Commands)
+            {
+                switch (item.Command)
+                {
+                    case Command.print:
+                        yield return _printingRoutine = StartCoroutine(_print(item.Context));
+                        break;
+
+                    case Command.color:
+                        _current_Data.Format.Color = item.Context;
+                        break;
+
+                    case Command.emote:
+                        _emote(item.Context);
+                        break;
+
+                    case Command.size:
+                        _current_Data.Format.Resize(item.Context);
+                        break;
+
+                    case Command.sound:
+                        Play_CallSE(item.Context);
+                        break;
+
+                    case Command.speed:
+                        Set_Speed(item.Context);
+                        break;
+
+                    case Command.click:
+                        yield return _waitInput();
+                        break;
+
+                    case Command.close:
+                        Hide();
+                        yield break;
+
+                    case Command.wait:
+                        yield return new WaitForSeconds(float.Parse(item.Context));
+                        break;
+                }
+            }
+
+            state = State.Wait;
+        }
+
+        private IEnumerator _waitInput()
+        {
+            while (!Input.GetMouseButtonDown(0)) yield return null;
+            _currentDelay = _lastDelay;
+        }
+
+        private IEnumerator _print(string text)
+        {
+            _current_Data.PrintText += _current_Data.Format.OpenTagger;
+
+            for (int i = 0; i < text.Length; i++)
+            {
+                _current_Data.PrintText += text[i];
+                
+                _current_Panel.PrinterText.text = _current_Data.PrintText + _current_Data.Format.CloseTagger;
+
+                if (text[i] != ' ') Play_ChatSE();
+                if (_currentDelay != 0) yield return new WaitForSeconds(_currentDelay);
+            }
+
+            _current_Data.PrintText += _current_Data.Format.CloseTagger;
+        }
+
+        public void _emote(string emotion)
+        {
+            if(_current_Character != null && _current_Character.Emotion.Data.ContainsKey(emotion))
+                _current_Character.GetComponent<Image>().sprite = _current_Character.Emotion.Data[emotion];
         }
 
         private IEnumerator _skip()

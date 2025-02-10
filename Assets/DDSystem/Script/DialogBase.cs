@@ -124,7 +124,7 @@ namespace Doublsb.Dialog
         //================================================
         //Public Variable
         //================================================
-        public string Character;
+        public string CharacterID;
         public List<DialogCommand> Commands = new List<DialogCommand>();
         public DialogSelect SelectList = new DialogSelect();
         public DialogFormat Format = new DialogFormat();
@@ -137,13 +137,16 @@ namespace Doublsb.Dialog
         //================================================
         //Public Method
         //================================================
-        public DialogData(string originalString, string character = "", UnityAction callback = null, bool isSkipable = true)
+        public DialogData(string originalString, 
+                          string characterId = "", 
+                          UnityAction callback = null, 
+                          bool isSkipable = true) 
         {
             _convert(originalString);
 
             this.isSkippable = isSkipable;
             this.Callback = callback;
-            this.Character = character;
+            this.CharacterID = characterId;
         }
 
         //================================================
