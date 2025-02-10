@@ -774,8 +774,7 @@ GameObject:
   m_Component:
   - component: {fileID: 389522940}
   - component: {fileID: 389522943}
-  - component: {fileID: 389522942}
-  - component: {fileID: 389522941}
+  - component: {fileID: 389522944}
   m_Layer: 5
   m_Name: Player 2
   m_TagString: Untagged
@@ -802,7 +801,15 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &389522941
+--- !u!222 &389522943
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 389522939}
+  m_CullTransparentMesh: 1
+--- !u!114 &389522944
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -817,53 +824,17 @@ MonoBehaviour:
   Emotion:
     _emotion:
     - Normal
+    - Happy
     - Sad
     - 
     _sprite:
     - {fileID: 21300000, guid: 2b47e8e677bf0af4f9a23af1b21bb3e1, type: 3}
+    - {fileID: 21300000, guid: 55c5dfe81ef784543b3d6b57ab636c7a, type: 3}
     - {fileID: 21300000, guid: 738de90211b5a9f40929e5a4e9a6bab3, type: 3}
   ChatSE:
   - {fileID: 8300000, guid: d892de2cb9eb07941bef7f5f4245c1b3, type: 3}
   CallSE:
   - {fileID: 8300000, guid: 7796b54b22f7f02439fc159ff0ec2b7c, type: 3}
---- !u!114 &389522942
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 389522939}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
---- !u!222 &389522943
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 389522939}
-  m_CullTransparentMesh: 1
 --- !u!1 &473061199
 GameObject:
   m_ObjectHideFlags: 0
@@ -906,7 +877,6 @@ GameObject:
   - component: {fileID: 529816249}
   - component: {fileID: 529816252}
   - component: {fileID: 529816251}
-  - component: {fileID: 529816250}
   m_Layer: 5
   m_Name: Niki
   m_TagString: Untagged
@@ -933,28 +903,6 @@ RectTransform:
   m_AnchoredPosition: {x: 850, y: 0}
   m_SizeDelta: {x: 540, y: 540}
   m_Pivot: {x: 1, y: 0.5}
---- !u!114 &529816250
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 529816248}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2255e66b58bcfa24f9911b3ed2d2488f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Emotion:
-    _emotion:
-    - Normal
-    - Sad
-    - 
-    _sprite:
-    - {fileID: 21300000, guid: 34f96a43c2ac0804b95b2e3ab9751332, type: 3}
-    - {fileID: 21300000, guid: 8f01fa9aca81c9142a73bb0c759a88de, type: 3}
-  ChatSE: []
-  CallSE: []
 --- !u!222 &529816251
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1827,6 +1775,7 @@ GameObject:
   - component: {fileID: 1407776582}
   - component: {fileID: 1407776581}
   - component: {fileID: 1407776580}
+  - component: {fileID: 1407776583}
   m_Layer: 5
   m_Name: Meme 1
   m_TagString: Untagged
@@ -1897,7 +1846,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1407776581}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1407776583}
+        m_TargetAssemblyTypeName: Test.MemeOption, Assembly-CSharp
+        m_MethodName: SelectMeme
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1407776581
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1936,6 +1897,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1407776578}
   m_CullTransparentMesh: 1
+--- !u!114 &1407776583
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1407776578}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96dcf99e346844c4ea08039ef2f909b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MemeName: Ned
+  Quality: 2
+  MemeImage: {fileID: 1407776581}
 --- !u!1 &1408923887
 GameObject:
   m_ObjectHideFlags: 0
@@ -1984,6 +1960,7 @@ MonoBehaviour:
   DialoguePanels:
   - {fileID: 745733307}
   - {fileID: 559650038}
+  isTyping: 0
   MiniGamePanel: {fileID: 0}
   MiniGameIsFinished: 0
   SEAudio: {fileID: 163009085}
@@ -2008,6 +1985,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dialogManager: {fileID: 1408923890}
   miniGamePanel: {fileID: 1017601441}
+  miniGameMemes:
+  - {fileID: 1407776583}
+  - {fileID: 2053331800}
+  - {fileID: 1981322365}
 --- !u!1 &1419747316
 GameObject:
   m_ObjectHideFlags: 0
@@ -2018,7 +1999,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1419747317}
   - component: {fileID: 1419747320}
-  - component: {fileID: 1419747319}
   - component: {fileID: 1419747318}
   m_Layer: 5
   m_Name: Player 1
@@ -2061,45 +2041,17 @@ MonoBehaviour:
   Emotion:
     _emotion:
     - Normal
+    - Happy
     - Sad
     - 
     _sprite:
     - {fileID: 21300000, guid: 34f96a43c2ac0804b95b2e3ab9751332, type: 3}
+    - {fileID: 21300000, guid: 77fa19401d8472a498f2164bce0d7a4b, type: 3}
     - {fileID: 21300000, guid: 8f01fa9aca81c9142a73bb0c759a88de, type: 3}
   ChatSE:
   - {fileID: 8300000, guid: d892de2cb9eb07941bef7f5f4245c1b3, type: 3}
   CallSE:
   - {fileID: 8300000, guid: 7796b54b22f7f02439fc159ff0ec2b7c, type: 3}
---- !u!114 &1419747319
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1419747316}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
 --- !u!222 &1419747320
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2832,6 +2784,7 @@ GameObject:
   - component: {fileID: 1981322364}
   - component: {fileID: 1981322363}
   - component: {fileID: 1981322362}
+  - component: {fileID: 1981322365}
   m_Layer: 5
   m_Name: Meme 3
   m_TagString: Untagged
@@ -2902,7 +2855,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1981322363}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1981322365}
+        m_TargetAssemblyTypeName: Test.MemeOption, Assembly-CSharp
+        m_MethodName: SelectMeme
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1981322363
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2941,6 +2906,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1981322360}
   m_CullTransparentMesh: 1
+--- !u!114 &1981322365
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1981322360}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96dcf99e346844c4ea08039ef2f909b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MemeName: Homero
+  Quality: 1
+  MemeImage: {fileID: 1981322363}
 --- !u!1 &1998486832
 GameObject:
   m_ObjectHideFlags: 0
@@ -3087,6 +3067,7 @@ GameObject:
   - component: {fileID: 2053331799}
   - component: {fileID: 2053331798}
   - component: {fileID: 2053331797}
+  - component: {fileID: 2053331800}
   m_Layer: 5
   m_Name: Meme 2
   m_TagString: Untagged
@@ -3157,7 +3138,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2053331798}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 2053331800}
+        m_TargetAssemblyTypeName: Test.MemeOption, Assembly-CSharp
+        m_MethodName: SelectMeme
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &2053331798
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3196,6 +3189,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2053331795}
   m_CullTransparentMesh: 1
+--- !u!114 &2053331800
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2053331795}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96dcf99e346844c4ea08039ef2f909b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MemeName: Police
+  Quality: 0
+  MemeImage: {fileID: 2053331798}
 --- !u!1 &2070863929
 GameObject:
   m_ObjectHideFlags: 0

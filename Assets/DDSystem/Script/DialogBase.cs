@@ -93,7 +93,10 @@ namespace Doublsb.Dialog
         {
             get
             {
-                if (_data == null) _init_emotionList();
+                if (_data == null || _data.Count == 0)
+                {
+                    _init_emotionList();
+                }
                 return _data;
             }
         }
@@ -106,13 +109,31 @@ namespace Doublsb.Dialog
         //================================================
         private void _init_emotionList()
         {
-            _data = new Dictionary<string, Sprite>();
+            if (_data == null) _data = new Dictionary<string, Sprite>();
+            else _data.Clear();
 
             if (_emotion.Length != _sprite.Length)
-                Debug.LogError("Emotion and Sprite have different lengths");
+            {
+                Debug.LogError($"La cantidad de emociones y sprites no coincide." +
+                               $"Emociones: {_emotion.Length}, Sprites: {_sprite.Length}");
+                
+                return; // Evita el crasheo del juego.
+            }               
 
             for (int i = 0; i < _emotion.Length; i++)
-                _data.Add(_emotion[i], _sprite[i]);
+            {
+                if(string.IsNullOrEmpty(_emotion[i]) || _sprite[i] == null)
+                {
+                    Debug.LogWarning($"Se está omitiendo una emoción inválida en la posición {i}. " +
+                                     $"Nombre: {_emotion[i]}, Sprite: {_sprite[i]}");
+                    continue;
+                }
+
+                _data[_emotion[i]] = _sprite[i];
+            }
+
+            Debug.Log($"Lista de emociones inicializada correctamente con {_data.Count} emociones.");
+
         }
     }
     #endregion

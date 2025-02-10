@@ -49,10 +49,11 @@ namespace Doublsb.Dialog
 
         [Header("Type")]
         public bool isTyping = false;
-
+        
         [Header("Mini Game")]
         public GameObject MiniGamePanel;
         public bool MiniGameIsFinished;
+        public event Action<MemeQuality> OnMemeSelected;
 
         [Header("Audio Objects")]
         public AudioSource SEAudio;
@@ -465,5 +466,34 @@ namespace Doublsb.Dialog
 
         #endregion
 
+        #region Mini Game
+
+        public void MemeSelected(MemeQuality quality)
+        {
+            if(_current_Character == null)
+            {
+                Debug.LogError("No hay un personaje activo para cambiar la emocion.");
+                return;
+            }
+
+            switch (quality)
+            {
+                case MemeQuality.Normal:
+                    _current_Character.Emote("Normal");
+                    break;
+                case MemeQuality.Happy:
+                    _current_Character.Emote("Happy");
+                    break;
+                case MemeQuality.Sad:
+                    _current_Character.Emote("Sad");
+                    break;                
+            }
+
+            //miniGamePanel.SetActive(false);
+            //OnMiniGameFinished();
+            OnMemeSelected?.Invoke(quality);
+        }
+
+        #endregion
     }
 }

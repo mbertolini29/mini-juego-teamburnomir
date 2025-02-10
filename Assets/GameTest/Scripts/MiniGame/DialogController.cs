@@ -12,8 +12,23 @@ namespace Test
 
         [SerializeField] private GameObject miniGamePanel;
 
+        [SerializeField] private List<MemeOption> miniGameMemes;
+
         private Queue<DialogData> dialogQueue = new Queue<DialogData>();
         private bool isConversationActive = false;
+        private bool isMiniGameActive = false;
+
+        private void OnEnable()
+        {
+            if(dialogManager != null)
+                dialogManager.OnMemeSelected += OnMiniGameFinished;            
+        }
+
+        private void OnDisable()
+        {
+            if (dialogManager != null)
+                dialogManager.OnMemeSelected -= OnMiniGameFinished;            
+        }
 
         private void Start()
         {
@@ -22,20 +37,15 @@ namespace Test
 
         private void Update()
         {
-            //if (!dialogManager.isTyping)
-
-            if (isConversationActive && (Input.GetKeyDown(KeyCode.Return) ||
-                                         Input.GetMouseButtonDown(0)))
+            if (!isMiniGameActive && !dialogManager.isTyping)
             {
-                if (dialogManager.isTyping)
+                if (isConversationActive && (Input.GetKeyDown(KeyCode.Return) ||
+                                             Input.GetMouseButtonDown(0)))
                 {
-                    dialogManager.isTyping = false;
-                }
-                else
-                {
+                    dialogManager.isTyping = true;
                     ShowNextDialog();
                 }
-            }
+            }            
         }
 
         private void StartConversation()
@@ -47,8 +57,7 @@ namespace Test
             dialogs.Add(new DialogData("Uy, contamé", "Player 1"));
             dialogs.Add(new DialogData("Estaba caminando por av corriente y de repente..", "Player 2", () => MiniGame()));
 
-            //dialogManager
-            
+            //dialogManager            
 
             dialogs.Add(new DialogData("jajaja", "Player 1"));
 
@@ -76,40 +85,36 @@ namespace Test
 
         private void MiniGame()
         {
-            if (dialogManager.state == State.Deactivate) return;
-            
-            Debug.Log("Iniciando MiniGame...");
-
-            // ocultas los dialogos
+            if (dialogManager.state == State.Deactivate) return;            
             dialogManager.Hide();
+
+            isMiniGameActive = true;
+
+            // configurar los memes?
+            SetupMiniGame();
 
             // activa el panel de mini juego.
             miniGamePanel.SetActive(true);
-
-            // supongamos que tenes 5 segundo para responder... 
-            // aunque para mi sin tiempo.
-            StartCoroutine(SimulateMiniGame());
         }
 
-        private IEnumerator SimulateMiniGame()
+        public void OnMiniGameFinished(MemeQuality quality)
         {
-            Debug.Log("MiniGame simulado: esperando 5 segundos...");
-
-            //logica del juego..
-
-            yield return new WaitForSeconds(2.0f);
-
-            OnMiniGameFinished();
-        }
-
-        public void OnMiniGameFinished()
-        {
-            Debug.Log("MiniGame finalizado. Reanudando conversación...");
-
             miniGamePanel.SetActive(false);
-
             dialogManager.state = State.Active;
+
+            isMiniGameActive = false;
+
             ShowNextDialog();
+        }
+
+        private void SetupMiniGame()
+        {
+            foreach (var meme in miniGameMemes)
+            {
+                //vincula cada meme.
+                meme.OnMemeSelected -= dialogManager.MemeSelected;
+                meme.OnMemeSelected += dialogManager.MemeSelected;
+            }
         }
 
     }
