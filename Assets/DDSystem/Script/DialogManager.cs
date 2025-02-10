@@ -47,6 +47,13 @@ namespace Doublsb.Dialog
         [Header("Panels")]
         public List<DialoguePanel> DialoguePanels;
 
+        [Header("Type")]
+        public bool isTyping = false;
+
+        [Header("Mini Game")]
+        public GameObject MiniGamePanel;
+        public bool MiniGameIsFinished;
+
         [Header("Audio Objects")]
         public AudioSource SEAudio;
         public AudioSource CallAudio;
@@ -133,6 +140,11 @@ namespace Doublsb.Dialog
             StartCoroutine(Activate_List(Data));
         }
 
+        public void ResumeConversation()
+        {
+
+        }
+
         public void Click_Window()
         {
             switch (state)
@@ -160,9 +172,8 @@ namespace Doublsb.Dialog
             }
 
             //Printer.SetActive(false);
-            //Characters.SetActive(false);
-            
-            Selector.SetActive(false);
+            //Characters.SetActive(false);            
+            //Selector.SetActive(false);
 
             state = State.Deactivate;
 
@@ -373,10 +384,23 @@ namespace Doublsb.Dialog
                     case Command.wait:
                         yield return new WaitForSeconds(float.Parse(item.Context));
                         break;
+
+                    case Command.miniGame:
+
+                        if (state == State.Deactivate) yield break;
+                        state = State.Deactivate;
+                        Hide();
+                        // lanzar mini juego.
+                        StartCoroutine(_activateMiniGame());
+                        yield break;
+
                 }
             }
 
             state = State.Wait;
+
+            //ejecutar el callback cuando termina el dialogo.
+            _current_Data.Callback?.Invoke();
         }
 
         private IEnumerator _waitInput()
@@ -387,6 +411,8 @@ namespace Doublsb.Dialog
 
         private IEnumerator _print(string text)
         {
+            isTyping = true;
+
             _current_Data.PrintText += _current_Data.Format.OpenTagger;
 
             for (int i = 0; i < text.Length; i++)
@@ -400,6 +426,8 @@ namespace Doublsb.Dialog
             }
 
             _current_Data.PrintText += _current_Data.Format.CloseTagger;
+
+            isTyping = false;
         }
 
         public void _emote(string emotion)
@@ -416,6 +444,23 @@ namespace Doublsb.Dialog
                 while (state != State.Wait) yield return null;
                 _currentDelay = Delay;
             }
+        }
+
+        private IEnumerator _activateMiniGame()
+        {
+            MiniGamePanel.SetActive(true);
+
+            while(!MiniGameIsFinished)
+            {
+
+
+                yield return null;
+            }
+
+            MiniGamePanel.SetActive(false);
+
+            //reanular conversacion.
+
         }
 
         #endregion

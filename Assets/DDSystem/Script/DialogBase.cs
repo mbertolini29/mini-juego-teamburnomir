@@ -50,7 +50,8 @@ namespace Doublsb.Dialog
         speed,
         click,
         close,
-        wait
+        wait,
+        miniGame
     }
 
     public enum TextColor
