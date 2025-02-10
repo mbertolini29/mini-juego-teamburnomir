@@ -18,6 +18,8 @@ namespace Test
         private bool isConversationActive = false;
         private bool isMiniGameActive = false;
 
+        private Dictionary<MemeQuality, DialogData> memeDialogs;
+
         private void OnEnable()
         {
             if(dialogManager != null)
@@ -32,6 +34,14 @@ namespace Test
 
         private void Start()
         {
+            // iniciamos los dialogos segun el meme seleccionado.
+            memeDialogs = new Dictionary<MemeQuality, DialogData>
+            {
+                { MemeQuality.Happy, new DialogData ("JAJAJA, ese meme es genial!", "Player 1" ) },
+                { MemeQuality.Normal, new DialogData ("Mmm, esta bueno pero no tan bueno.", "Player 1" ) },
+                { MemeQuality.Sad, new DialogData ("Silencio incomodo..., bueno, ¿en qué estabamos?", "Player 1" ) }
+            };
+
             StartConversation();
         }
 
@@ -52,14 +62,14 @@ namespace Test
         {
             List<DialogData> dialogs = new List<DialogData>();
             
-            dialogs.Add(new DialogData("Hola, como estas?", "Player 1"));
-            dialogs.Add(new DialogData("Amigo, no sabés lo que me paso hoy.", "Player 2"));
+            //dialogs.Add(new DialogData("Hola, como estas?", "Player 1"));
+            //dialogs.Add(new DialogData("Amigo, no sabés lo que me paso hoy.", "Player 2"));
             dialogs.Add(new DialogData("Uy, contamé", "Player 1"));
             dialogs.Add(new DialogData("Estaba caminando por av corriente y de repente..", "Player 2", () => MiniGame()));
-
-            //dialogManager            
-
-            dialogs.Add(new DialogData("jajaja", "Player 1"));
+  
+            //dialogs.Add(new DialogData("JAJAJA, ese meme es genial!", "Player 1"));
+            //dialogs.Add(new DialogData("Mm, esta bueno pero no tan bueno", "Player 1"));
+            //dialogs.Add(new DialogData("silencio..., mm, bueno en que estabamos?", "Player 2"));
 
             foreach (var dialog in dialogs)
             {
@@ -102,9 +112,19 @@ namespace Test
             miniGamePanel.SetActive(false);
             dialogManager.state = State.Active;
 
-            isMiniGameActive = false;
+            // verifica si hay dialogo para el meme o usa por defecto.
 
-            ShowNextDialog();
+            if(memeDialogs.TryGetValue(quality, out DialogData nextDialog))
+            {
+                dialogManager.Show(nextDialog);
+            }
+            else
+            {
+                dialogManager.Show(new DialogData("Bueno, sigamos...", "Player 2"));
+            }
+
+            isMiniGameActive = false;
+            //ShowNextDialog();
         }
 
         private void SetupMiniGame()
