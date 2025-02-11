@@ -18,7 +18,9 @@ namespace Test
         private bool isConversationActive = false;
         private bool isMiniGameActive = false;
 
-        private Dictionary<MemeQuality, DialogData> memeDialogs;
+        //private Dictionary<MemeQuality, List<DialogData>> memeDialogs;
+
+        private Dictionary<MemeQuality, (List<DialogData> dialogs, string player1Emotion, string player2Emotion)> memeDialogs;
 
         private void OnEnable()
         {
@@ -35,11 +37,26 @@ namespace Test
         private void Start()
         {
             // iniciamos los dialogos segun el meme seleccionado.
-            memeDialogs = new Dictionary<MemeQuality, DialogData>
+            memeDialogs = new Dictionary<MemeQuality, (List<DialogData>, string, string)>
             {
-                { MemeQuality.Happy, new DialogData ("JAJAJA, ese meme es genial!", "Player 1" ) },
-                { MemeQuality.Normal, new DialogData ("Mmm, esta bueno pero no tan bueno.", "Player 1" ) },
-                { MemeQuality.Sad, new DialogData ("Silencio incomodo..., bueno, ¿en qué estabamos?", "Player 1" ) }
+                { MemeQuality.Happy, (new List<DialogData>
+                    {
+                        new DialogData("JAJAJA, ese meme es genial!", "Player 1" ),
+                        new DialogData("JAJAJAJA", "Player 2")
+                    }, "Happy", "Happy")
+                },                
+                { MemeQuality.Normal, (new List<DialogData>
+                    {
+                        new DialogData("Mmm, esta bueno pero no tan bueno.", "Player 1" ),
+                        new DialogData("Vimos mejores memes.", "Player 2" )
+                    }, "Normal", "Normal")             
+                },                
+                { MemeQuality.Sad, (new List<DialogData>
+                    {
+                        new DialogData("Silencio incómodo...", "Player 1" ),
+                        new DialogData("Bueno, ¿en qué estabamos?", "Player 2" )
+                    }, "Sad", "Sad")
+                }
             };
 
             StartConversation();
@@ -100,7 +117,7 @@ namespace Test
 
             isMiniGameActive = true;
 
-            // configurar los memes?
+            // configurar la imagen de los memes individualmente.
             SetupMiniGame();
 
             // activa el panel de mini juego.
@@ -111,20 +128,31 @@ namespace Test
         {
             miniGamePanel.SetActive(false);
             dialogManager.state = State.Active;
+            isMiniGameActive = false;
 
             // verifica si hay dialogo para el meme o usa por defecto.
-
-            if(memeDialogs.TryGetValue(quality, out DialogData nextDialog))
+            if(memeDialogs.TryGetValue(quality, out var data))
             {
-                dialogManager.Show(nextDialog);
+                List<DialogData> nextDialogs = data.dialogs;
+
+                string player1Emotion = data.player1Emotion;
+                string player2Emotion = data.player2Emotion;
+
+                // cambia la emocion de ambos personajes.
+                dialogManager.SetCharacterEmotion("Player 1", player1Emotion);
+                dialogManager.SetCharacterEmotion("Player 2", player2Emotion);
+
+                foreach (var dialog in nextDialogs)
+                {
+                    dialogQueue.Enqueue(dialog);
+                }
             }
             else
             {
-                dialogManager.Show(new DialogData("Bueno, sigamos...", "Player 2"));
+                dialogQueue.Enqueue(new DialogData("Bueno, sigamos...", "Player 2"));
             }
 
-            isMiniGameActive = false;
-            //ShowNextDialog();
+            ShowNextDialog();
         }
 
         private void SetupMiniGame()

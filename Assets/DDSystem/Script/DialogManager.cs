@@ -37,13 +37,6 @@ namespace Doublsb.Dialog
         //================================================
         //Public Variable
         //================================================
-        //[Header("Game Objects")]
-        //public GameObject Printer;
-        //public GameObject Characters;
-
-        //[Header("UI Objects")]
-        //public Text Printer_Text;
-
         [Header("Panels")]
         public List<DialoguePanel> DialoguePanels;
 
@@ -129,21 +122,12 @@ namespace Doublsb.Dialog
             // inicializar el texto en el panel actual
             _current_Panel.PrinterText.text = "";
 
-            //
-            //if(_current_Character != null)
-            //    _emote("Normal");
-
             _textingRoutine = StartCoroutine(Activate());
         }
 
         public void Show(List<DialogData> Data)
         {
             StartCoroutine(Activate_List(Data));
-        }
-
-        public void ResumeConversation()
-        {
-
         }
 
         public void Click_Window()
@@ -171,10 +155,6 @@ namespace Doublsb.Dialog
             {
                 panel.HidePanel();
             }
-
-            //Printer.SetActive(false);
-            //Characters.SetActive(false);            
-            //Selector.SetActive(false);
 
             state = State.Deactivate;
 
@@ -264,12 +244,6 @@ namespace Doublsb.Dialog
                 else
                     Debug.LogWarning($"No se encontró el personaje {name} en el panel {panel.CharacterID}");
             }
-
-            //if (name != string.Empty)
-            //{
-            //    Transform Child = Characters.transform.Find(name);
-            //    if (Child != null) _current_Character = Child.GetComponent<Character>();
-            //}
         }
 
         private void _initialize()
@@ -279,14 +253,6 @@ namespace Doublsb.Dialog
 
             _current_Data.PrintText = "";
             _current_Panel.PrinterText.text = "";
-            
-            //Printer_Text.text = string.Empty;
-
-            //Printer.SetActive(true);
-
-            //Characters.SetActive(_current_Character != null);
-            //foreach (Transform item in Characters.transform) item.gameObject.SetActive(false);
-            //if(_current_Character != null) _current_Character.gameObject.SetActive(true);
         }
 
         private void _init_selector()
@@ -386,15 +352,6 @@ namespace Doublsb.Dialog
                         yield return new WaitForSeconds(float.Parse(item.Context));
                         break;
 
-                    case Command.miniGame:
-
-                        if (state == State.Deactivate) yield break;
-                        state = State.Deactivate;
-                        Hide();
-                        // lanzar mini juego.
-                        StartCoroutine(_activateMiniGame());
-                        yield break;
-
                 }
             }
 
@@ -447,27 +404,11 @@ namespace Doublsb.Dialog
             }
         }
 
-        private IEnumerator _activateMiniGame()
-        {
-            MiniGamePanel.SetActive(true);
-
-            while(!MiniGameIsFinished)
-            {
-
-
-                yield return null;
-            }
-
-            MiniGamePanel.SetActive(false);
-
-            //reanular conversacion.
-
-        }
-
         #endregion
 
         #region Mini Game
 
+        //este funcionaba individualmente..
         public void MemeSelected(MemeQuality quality)
         {
             if(_current_Character == null)
@@ -489,9 +430,25 @@ namespace Doublsb.Dialog
                     break;                
             }
 
-            //miniGamePanel.SetActive(false);
-            //OnMiniGameFinished();
             OnMemeSelected?.Invoke(quality);
+        }
+
+        //este cambia ambos personajes.
+        public void SetCharacterEmotion(string characterID, string emotion)
+        {
+            if(_panelsDict.TryGetValue(characterID, out DialoguePanel panel))
+            {
+                Character character = panel.CharactersContainer.GetComponentInChildren<Character>();
+
+                if(character != null)
+                {
+                    character.Emote(emotion);
+                }
+                else
+                {
+                    Debug.LogWarning($"No se encontró el personaje {characterID} en el díalogo.");
+                }
+            }
         }
 
         #endregion
