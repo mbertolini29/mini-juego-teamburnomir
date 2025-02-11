@@ -238,11 +238,27 @@ namespace Doublsb.Dialog
         {
             if (!string.IsNullOrEmpty(name))
             {
-                Transform child = panel.CharactersContainer.transform.Find(name);
-                if (child != null)
-                    _current_Character = child.GetComponent<Character>();
+                GameObject characterObject = GameObject.Find(name);
+
+                if(characterObject != null)
+                {
+                    _current_Character = characterObject.GetComponent<Character>();
+                    
+                    if (_current_Character == null)
+                    {
+                        Debug.LogWarning($"El gameobject {name} fue encontrado, pero no tiene un componente Character.");
+                    }
+                }
                 else
-                    Debug.LogWarning($"No se encontró el personaje {name} en el panel {panel.CharacterID}");
+                {
+                    Debug.LogWarning($"No se encontró un gameobject con el nombre {name} en la escena.");
+                }
+                
+                //Transform child = panel.CharactersContainer.transform.Find(name);
+                //if (child != null)
+                //    _current_Character = child.GetComponent<Character>();
+                //else
+                //    Debug.LogWarning($"No se encontró el personaje {name} en el panel {panel.CharacterID}");
             }
         }
 
@@ -390,8 +406,8 @@ namespace Doublsb.Dialog
 
         public void _emote(string emotion)
         {
-            if(_current_Character != null && _current_Character.Emotion.Data.ContainsKey(emotion))
-                _current_Character.GetComponent<Image>().sprite = _current_Character.Emotion.Data[emotion];
+            //if(_current_Character != null && _current_Character.Emotion.Data.ContainsKey(emotion))
+            //    _current_Character.GetComponent<Image>().sprite = _current_Character.Emotion.Data[emotion];
         }
 
         private IEnumerator _skip()

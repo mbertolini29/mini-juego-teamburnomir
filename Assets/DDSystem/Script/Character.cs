@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,34 +12,53 @@ namespace Doublsb.Dialog
         public AudioClip[] ChatSE;
         public AudioClip[] CallSE;
 
-        private Image _characterImage;
-
-        private Transform parentTransform;
-
         private void Awake()
         {
-            parentTransform = transform.parent;
-
-            while(parentTransform != null)
+            if(Emotion == null || Emotion._emotionObjects == null || Emotion._emotionObjects.Length == 0)
             {
-                _characterImage = parentTransform.GetComponent<Image>();
-                if (_characterImage != null) break;
-                parentTransform = parentTransform.parent;
+                Debug.LogError($"El personaje {name} no tiene una referencia válida a Emotion.");
+                return;
+            }
+
+            // Apagar todas las emociones al inicio
+            foreach (var obj in Emotion._emotionObjects)
+            {
+                if (obj != null) obj.SetActive(false);
+            }
+
+            // Activar la emoción por defecto ("Normal")
+            if (Emotion._emotionObjects.Length > 0 && Emotion._emotionObjects[0] != null)
+            {
+                Emotion._emotionObjects[0].SetActive(true);
             }
         }
 
         public void Emote(string emotion)
         {
-            int index = Array.IndexOf(Emotion._emotion, emotion);
-
-            if(index >= 0 && index < Emotion._sprite.Length)
+            if (Emotion == null || Emotion._emotionObjects == null || Emotion._emotion == null)
             {
-                _characterImage.sprite = Emotion._sprite[index];
-                Debug.Log($"Personaje {name} cambio su emocion.");
+                Debug.LogError($"El personaje {name} no tiene emociones asignadas.");
+                return;
             }
-            else
+
+            int index = System.Array.IndexOf(Emotion._emotion, emotion);
+
+            if (index < 0 || index >= Emotion._emotionObjects.Length)
             {
-                Debug.LogWarning($"No se encontró la emocion {emotion} para el personaje {name}.");
+                Debug.LogWarning($"No se encontró la emoción '{emotion}' para el personaje {name}.");
+                return;
+            }
+
+            // Apagar todas las caras antes de activar la nueva
+            foreach (var obj in Emotion._emotionObjects)
+            {
+                if (obj != null) obj.SetActive(false);
+            }
+
+            // Activar la emoción seleccionada
+            if (Emotion._emotionObjects[index] != null)
+            {
+                Emotion._emotionObjects[index].SetActive(true);
             }
         }
 
