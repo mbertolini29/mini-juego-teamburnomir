@@ -24,6 +24,7 @@ namespace Test
 
         public void PauseGame()
         {
+            SoundManager.instance.PlayButtonClick(); 
             pauseMenu.SetActive(true);
             Time.timeScale = 0f; 
             isPaused = true;
@@ -31,6 +32,7 @@ namespace Test
 
         public void ResumeGame()
         {
+            SoundManager.instance.PlayButtonClick();
             pauseMenu.SetActive(false);
             Time.timeScale = 1f; 
             isPaused = false;
@@ -38,17 +40,20 @@ namespace Test
 
         public void LoadMainMenu()
         {
+            SoundManager.instance.PlayButtonClick();
             Time.timeScale = 1f; 
             SceneManager.LoadScene("MainMenu");
         }
 
         public void PlayGame()
         {
+            SoundManager.instance.PlayButtonClick();
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
         }
 
         public void ExitGame()
         {
+            SoundManager.instance.PlayButtonClick();
             Application.Quit();
         }
 

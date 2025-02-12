@@ -455,6 +455,7 @@ namespace Doublsb.Dialog
                     _current_Character.Emote("Normal");
                     break;
                 case MemeQuality.Happy:
+
                     _current_Character.Emote("Happy");
                     break;
                 case MemeQuality.Sad:
