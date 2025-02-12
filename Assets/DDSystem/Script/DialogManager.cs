@@ -42,7 +42,9 @@ namespace Doublsb.Dialog
 
         [Header("Type")]
         public bool isTyping = false;
-        
+        public bool isWaitingForNext = false;
+        private string currentSentence = "";
+
         [Header("Mini Game")]
         public GameObject MiniGamePanel;
         public bool MiniGameIsFinished;
@@ -105,7 +107,7 @@ namespace Doublsb.Dialog
             if(!_panelsDict.TryGetValue(data.CharacterID, out _current_Panel))
             {
                 Debug.LogError($"No se encontro el panel con ID: { data.CharacterID}");
-                _current_Panel = DialoguePanels[0];
+                return;
             }
 
             _find_character(data.CharacterID, _current_Panel);
@@ -121,6 +123,8 @@ namespace Doublsb.Dialog
 
             // inicializar el texto en el panel actual
             _current_Panel.PrinterText.text = "";
+            isTyping = true;
+            isWaitingForNext = false;
 
             _textingRoutine = StartCoroutine(Activate());
         }
@@ -385,23 +389,35 @@ namespace Doublsb.Dialog
 
         private IEnumerator _print(string text)
         {
-            isTyping = true;
+            currentSentence = text;
 
-            _current_Data.PrintText += _current_Data.Format.OpenTagger;
+            _current_Data.PrintText = "";
+            _current_Panel.PrinterText.text = "";
 
-            for (int i = 0; i < text.Length; i++)
+            foreach (char letter in text.ToCharArray())
             {
-                _current_Data.PrintText += text[i];
-                
-                _current_Panel.PrinterText.text = _current_Data.PrintText + _current_Data.Format.CloseTagger;
+                if (!isTyping) yield break; // Detiene la animación si se interrumpe
 
-                if (text[i] != ' ') Play_ChatSE();
-                if (_currentDelay != 0) yield return new WaitForSeconds(_currentDelay);
+                _current_Data.PrintText += letter;
+                _current_Panel.PrinterText.text = _current_Data.PrintText;
+
+                if (letter != ' ') Play_ChatSE();
+                yield return new WaitForSeconds(_currentDelay);
             }
 
-            _current_Data.PrintText += _current_Data.Format.CloseTagger;
-
             isTyping = false;
+            isWaitingForNext = true;
+        }
+
+        public void SkipTyping()
+        {
+            if (isTyping)
+            {
+                StopCoroutine(_printingRoutine);  // Detiene la animación de texto
+                _current_Panel.PrinterText.text = currentSentence; // Muestra la frase completa
+                isTyping = false;
+                isWaitingForNext = true;
+            }
         }
 
         public void _emote(string emotion)
