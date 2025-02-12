@@ -46,6 +46,10 @@ namespace Test
             // iniciamos los dialogos segun el meme seleccionado.
             memeDialogs = new Dictionary<MemeQuality, (List<DialogData>, string, string)>
             {
+                //TODO: este diccionario estaba diseñado para que la eleccion del meme afectara
+                //      la conversacion, generando una ramificacion de dialogos..
+                //      pero por razones de narrativa, decidi no implementarlo.
+                //      Y que solamente, implemente la reacion de la cara del personaje. 
                 { MemeQuality.Happy, (new List<DialogData>
                     {
                         new DialogData("JAJAJA, ese meme es genial!", "Player 1" ),
@@ -199,7 +203,7 @@ namespace Test
         {
             Debug.Log($"StartMiniGameWithDelay iniciado - MiniGameCounter: {miniGameCounter}");
 
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(1.5f);
 
             dialogManager.Hide();
 
